@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cung Điện Kí Ức - Xem Hình Ảnh, Nhập Bằng Chữ (Rạp Xiếc BK)</title>
+    <style>
+        :root {
+            --circus-red: #8b0000;
+            --circus-gold: #ffd700;
+            --circus-dark: #0a0a0c;
+            --panel-bg: #141419;
+            --text-color: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--circus-dark);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: var(--circus-gold);
+            font-size: 1.5rem;
+            margin: 5px 0;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .story-badge {
+            color: #ff4d4d;
+            font-style: italic;
+            font-size: 0.85rem;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 15px;
+            max-width: 1200px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .board-card {
+            background: var(--panel-bg);
+            border-radius: 12px;
+            padding: 15px;
+            border: 2px solid #2a2a35;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            flex: 1;
+            min-width: 700px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Lưới chứa 50 ô hình ảnh */
+        .grid-50 {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            background: #050507;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #2c2c3a;
+            width: 100%;
+            box-sizing: border-box;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .item-cell {
+            aspect-ratio: 1;
+            background: #1c1c24;
+            border: 1px solid #333;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            user-select: none;
+            transition: 0.2s;
+        }
+
+        .item-cell.hidden {
+            background: #181820;
+            color: transparent;
+            border-color: #252530;
+            font-size: 0;
+        }
+
+        .item-cell.matched {
+            border-color: #00ffcc;
+            background: #003322;
+        }
+
+        .item-cell.missed {
+            border-color: #ff4d4d;
+            background: #330000;
+        }
+
+        /* Khung nhập liệu bằng chữ */
+        .input-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 110px;
+            background: #050507;
+            color: var(--text-color);
+            border: 2px solid #2c2c3a;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            resize: none;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        textarea:focus {
+            border-color: var(--circus-gold);
+        }
+
+        .sidebar {
+            background: var(--panel-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #2a2a35;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rule-box {
+            background: #1c1c24;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 4px solid var(--circus-gold);
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .timer-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--circus-gold);
+            text-align: center;
+            background: #181820;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #2c2c3a;
+        }
+
+        button {
+            background: var(--circus-red);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background: #b30000;
+            box-shadow: 0 0 10px rgba(179, 0, 0, 0.6);
+        }
+
+        .status-text {
+            text-align: center;
+            font-weight: bold;
+            color: #00ffcc;
+            min-height: 22px;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🎪 CHẶNG 1 - VÒNG 3: CUNG ĐIỆN KÍ ỨC</h1>
+        <div class="story-badge">"Hiển thị 50 hình ảnh trực quan, nhập đáp án bằng chữ..."</div>
+    </header>
+
+    <main class="main-layout">
+        <section class="board-card">
+            <div id="status" class="status-text">Nhấn "Bắt đầu ghi nhớ (10 giây)" để bắt đầu!</div>
+            <div id="gridBoard" class="grid-50">
+                <!-- 50 ô hiển thị hình ảnh -->
+            </div>
+            
+            <!-- Khung nhập đáp án bằng chữ khi hết giờ -->
+            <div id="inputSection" class="input-container" style="display:none;">
+                <label for="recallInput" style="font-size: 0.85rem; color: #ffd700;">✍️ Nhập các tên hình ảnh bạn nhớ (cách nhau bằng dấu phẩy hoặc khoảng trắng):</label>
+                <textarea id="recallInput" placeholder="Ví dụ: chú hề, vé, bóng bay, ảo thuật, mũ, sư tử..."></textarea>
+                <button onclick="checkRecallResults()" style="background: #008855;">🔍 So Sánh & Chấm Điểm Ngay</button>
+            </div>
+        </section>
+
+        <aside class="sidebar">
+            <div class="rule-box">
+                <strong>📋 Hướng dẫn vận hành:</strong><br>
+                1. Quan sát <strong>50 hình ảnh</strong> trong vòng <strong>10 giây</strong>.<br>
+                2. Hết giờ, màn hình ẩn đi. Các thành viên gõ tên các hình nhớ được vào ô bên trái.<br>
+                3. Bấm so sánh để hệ thống chấm điểm (Xanh: Nhớ đúng tên, Đỏ: Bỏ sót).
+            </div>
+
+            <div id="countdown" class="timer-display">10s</div>
+
+            <button id="startBtn" onclick="startMemorizing()">🚀 Bắt đầu ghi nhớ (10s)</button>
+            <button onclick="resetGame()" style="background: #333;">🔄 Chơi lại từ đầu</button>
+        </aside>
+    </main>
+
+    <script>
+        // Danh sách 50 hình ảnh (Icon trực quan kèm tên khóa chuẩn để đối chiếu chữ)
+        const baseItems = [
+            { icon: '🎪', keyword: 'rạp xiếc' }, { icon: '🤡', keyword: 'chú hề' }, { icon: '🎟️', keyword: 'vé' }, { icon: '🎈', keyword: 'bóng bay' }, { icon: '🪄', keyword: 'ảo thuật' }, 
+            { icon: '🎩', keyword: 'mũ' }, { icon: '🦁', keyword: 'sư tử' }, { icon: '⭐', keyword: 'ngôi sao' }, { icon: '🎭', keyword: 'mặt nạ' }, { icon: '🔮', keyword: 'quả cầu' }, 
+            { icon: '🎠', keyword: 'ngựa gỗ' }, { icon: '🎯', keyword: 'hồng tâm' }, { icon: '🎲', keyword: 'xúc sắc' }, { icon: '🎨', keyword: 'bảng vẽ' }, { icon: '🎸', keyword: 'đàn guitar' }, 
+            { icon: '🕹️', keyword: 'tay cầm' }, { icon: '🏆', keyword: 'cúp' }, { icon: '💎', keyword: 'kim cương' }, { icon: '🔥', keyword: 'lửa' }, { icon: '⚡', keyword: 'tia chớp' }, 
+            { icon: '🍎', keyword: 'táo' }, { icon: '🍌', keyword: 'chuối' }, { icon: '🍇', keyword: 'nho' }, { icon: '🍉', keyword: 'dưa hấu' }, { icon: '🍓', keyword: 'dâu' }, 
+            { icon: '🍒', keyword: 'anh đào' }, { icon: '🍍', keyword: 'dứa' }, { icon: '🥝', keyword: 'kiwi' }, { icon: '🥥', keyword: 'dừa' }, { icon: '🥑', keyword: 'bơ' }, 
+            { icon: '🚗', keyword: 'xe hơi' }, { icon: '🚕', keyword: 'taxi' }, { icon: '🚙', keyword: 'xe ô tô' }, { icon: '🚌', keyword: 'xe buýt' }, { icon: '🚎', keyword: 'xe điện' }, 
+            { icon: '🏎️', keyword: 'xe đua' }, { icon: '🚓', keyword: 'cảnh sát' }, { icon: '🚑', keyword: 'cứu thương' }, { icon: '🚒', keyword: 'cứu hỏa' }, { icon: '🚐', keyword: 'xe tải' }, 
+            { icon: '⚽', keyword: 'bóng đá' }, { icon: '🏀', keyword: 'bóng rổ' }, { icon: '🏈', keyword: 'bóng bầu dục' }, { icon: '⚾', keyword: 'bóng chày' }, { icon: '🎾', keyword: 'quần vợt' }, 
+            { icon: '🏐', keyword: 'bóng chuyền' }, { icon: '🏉', keyword: 'bóng bầu dục' }, { icon: '🎱', keyword: 'bi-a' }, { icon: '🏓', keyword: 'bóng bàn' }, { icon: '🏸', keyword: 'cầu lông' }
+        ];
+
+        let currentGameItems = [];
+        let timer = null;
+        let timeLeft = 10;
+        let gameState = 'IDLE';
+
+        const gridBoard = document.getElementById('gridBoard');
+        const statusText = document.getElementById('status');
+        const timerDisplay = document.getElementById('countdown');
+        const startBtn = document.getElementById('startBtn');
+        const inputSection = document.getElementById('inputSection');
+        const recallInput = document.getElementById('recallInput');
+
+        function renderBoard(hidden = false) {
+            gridBoard.innerHTML = '';
+            currentGameItems.forEach((item) => {
+                const cell = document.createElement('div');
+                cell.className = 'item-cell' + (hidden ? ' hidden' : '');
+                cell.innerText = hidden ? '' : item.icon;
+                cell.dataset.keyword = item.keyword;
+                gridBoard.appendChild(cell);
+            });
+        }
+
+        function startMemorizing() {
+            // Xáo trộn ngẫu nhiên thứ tự 50 hình ảnh
+            currentGameItems = [...baseItems].sort(() => 0.5 - Math.random());
+            gameState = 'MEMORIZING';
+            timeLeft = 10;
+
+            statusText.innerText = "👁️ Đang hiển thị 50 hình ảnh! Hãy ghi nhớ thật nhanh...";
+            statusText.style.color = "#ffd700";
+            timerDisplay.innerText = timeLeft + "s";
+            startBtn.style.display = 'none';
+            inputSection.style.display = 'none';
+            recallInput.value = '';
+
+            renderBoard(false);
+
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft + "s";
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    startRecallingPhase();
+                }
+            }, 1000);
+        }
+
+        function startRecallingPhase() {
+            gameState = 'RECALLING';
+            statusText.innerText = "🧠 Hết giờ! Màn hình đã ẩn. Hãy nhập tên các hình bạn nhớ bằng chữ vào khung.";
+            statusText.style.color = "#00ffcc";
+            timerDisplay.innerText = "Hết giờ!";
+            
+            renderBoard(true); // Ẩn hình ảnh đi
+            inputSection.style.display = 'flex';
+            recallInput.focus();
+        }
+
+        function checkRecallResults() {
+            const userInput = recallInput.value.toLowerCase();
+            let cells = gridBoard.children;
+            let correctCount = 0;
+
+            for (let i = 0; i < cells.length; i++) {
+                let cell = cells[i];
+                let keyword = cell.dataset.keyword;
+                let originalIcon = currentGameItems[i].icon;
+
+                // Kiểm tra xem người dùng có gõ chứa từ khóa của hình đó không
+                if (userInput.includes(keyword)) {
+                    cell.innerText = originalIcon;
+                    cell.classList.remove('hidden');
+                    cell.classList.add('matched');
+                    correctCount++;
+                } else {
+                    cell.innerText = originalIcon;
+                    cell.classList.remove('hidden');
+                    cell.classList.add('missed');
+                }
+            }
+
+            statusText.innerHTML = `🏆 Kết quả: Ghi nhớ chính xác <span style="color:#ffd700">${correctCount} / 50</span> hình ảnh!`;
+            inputSection.style.display = 'none';
+        }
+
+        function resetGame() {
+            clearInterval(timer);
+            gameState = 'IDLE';
+            currentGameItems = [...baseItems];
+            statusText.innerText = "Nhấn 'Bắt đầu ghi nhớ (10 giây)' để bắt đầu!";
+            statusText.style.color = "#00ffcc";
+            timerDisplay.innerText = "10s";
+            startBtn.style.display = 'block';
+            inputSection.style.display = 'none';
+            renderBoard(false);
+        }
+
+        // Khởi tạo ban đầu
+        resetGame();
+    </script>
+</body>
+</html>
